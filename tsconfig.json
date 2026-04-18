@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@prisma/client": ["./src/generated/prisma"]
+      "@/*": ["src/*"]
     },
     "ignoreDeprecations": "6.0"
   },
