@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as bannerController from '../controllers/banner.js';
+import * as productController from '../controllers/product.js';
 
 export const routes = Router();
 
@@ -8,3 +9,4 @@ routes.get('/ping', (req, res) => {
 });
 
 routes.get('/banners', bannerController.getBanners);
+routes.get('/products', productController.getProducts);

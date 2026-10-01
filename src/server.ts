@@ -20,5 +20,5 @@ server.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 const port = process.env.PORT || 4000;
 server.listen(port, () => {
-  console.log('Running successfully on port ' + port);
+  console.log('Server running successfully on port ' + port);
 });
