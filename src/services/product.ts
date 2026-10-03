@@ -20,7 +20,30 @@ export const getAllProducts = async (filters: ProductFilters) => {
       break;
   }
 
-  let where = {};
+  let where: any = {};
+  if (filters.metadata && typeof filters.metadata === 'object') {
+    let metaFilters = [];
+    for (let categoryMetadataId in filters.metadata) {
+      const value = filters.metadata[categoryMetadataId];
+      if (typeof value !== 'string') continue;
+      const valueIds = value
+        .split('|')
+        .map((v) => v.trim())
+        .filter(Boolean);
+      if (valueIds.length === 0) continue;
+      metaFilters.push({
+        metadata: {
+          some: {
+            categoryMetadataId,
+            metadataValueId: { in: valueIds },
+          },
+        },
+      });
+    }
+    if (metaFilters.length > 0) {
+      where.AND = metaFilters;
+    }
+  }
 
   const products = await prisma.product.findMany({
     select: {
@@ -38,10 +61,8 @@ export const getAllProducts = async (filters: ProductFilters) => {
   });
 
   return products.map((product) => ({
-  ...product,
-  image: product.images[0]
-    ? `media/products/${product.images[0].url}`
-    : null,
-  images: undefined,
-}));
+    ...product,
+    image: product.images[0] ? `media/products/${product.images[0].url}` : null,
+    images: undefined,
+  }));
 };
