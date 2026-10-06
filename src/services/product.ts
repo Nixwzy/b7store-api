@@ -20,9 +20,10 @@ export const getAllProducts = async (filters: ProductFilters) => {
       break;
   }
 
+  // Build the where clause based on metadata filters
   let where: any = {};
   if (filters.metadata && typeof filters.metadata === 'object') {
-    let metaFilters = [];
+    let metadataFilters = [];
     for (let categoryMetadataId in filters.metadata) {
       const value = filters.metadata[categoryMetadataId];
       if (typeof value !== 'string') continue;
@@ -31,7 +32,7 @@ export const getAllProducts = async (filters: ProductFilters) => {
         .map((v) => v.trim())
         .filter(Boolean);
       if (valueIds.length === 0) continue;
-      metaFilters.push({
+      metadataFilters.push({
         metadata: {
           some: {
             categoryMetadataId,
@@ -40,8 +41,8 @@ export const getAllProducts = async (filters: ProductFilters) => {
         },
       });
     }
-    if (metaFilters.length > 0) {
-      where.AND = metaFilters;
+    if (metadataFilters.length > 0) {
+      where.AND = metadataFilters;
     }
   }
 

@@ -9,10 +9,10 @@ export const getProducts: RequestHandler = async (req, res) => {
     res.status(400).json({ error: 'Parâmetros inválidos' });
     return;
   }
-  const { metadata, orderBy, limit } = parseResult.data;
+  const { metadata: rawMetadata, orderBy, limit: rawLimit } = parseResult.data;
 
-  const parsedLimit = limit ? parseInt(limit) : undefined;
-  const parsedMetadata = metadata ? JSON.parse(metadata) : undefined;
+  const parsedLimit = rawLimit ? parseInt(rawLimit) : undefined;
+  const parsedMetadata = rawMetadata ? JSON.parse(rawMetadata) : undefined;
 
   const products = await getAllProducts({
     metadata: parsedMetadata,
@@ -27,4 +27,11 @@ export const getProducts: RequestHandler = async (req, res) => {
   }));
 
   res.json({ error: null, products: productsWithAbsoluteUrl });
+};
+
+export const getOneProduct: RequestHandler = async (req, res) => {
+
+  
+
+  res.json({ error: null });
 };
