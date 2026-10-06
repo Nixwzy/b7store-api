@@ -3,11 +3,14 @@ import { getProductSchema } from '@/schemas/getProductSchema.js';
 import {
   getAllProducts,
   getProduct,
+  getProductsFromSameCategory,
   incrementProductViews,
 } from '@/services/product.js';
 import { getAbsoluteImageUrl } from '@/utils/getAbsoluteImageUrl.js';
 import { getOneProductSchema } from '@/schemas/getOneProductSchema.js';
 import { getCategory } from '@/services/category.js';
+import { getRelatedProductsQuerySchema } from '@/schemas/getOneProductQuery.js';
+import { getRelatedProductsSchema } from '@/schemas/getRelatedProductsSchema.js';
 
 export const getProducts: RequestHandler = async (req, res) => {
   const parseResult = getProductSchema.safeParse(req.query);
@@ -59,4 +62,30 @@ export const getOneProduct: RequestHandler = async (req, res) => {
   await incrementProductViews(product.id);
 
   res.json({ error: null, product: productWithAbsoluteImages, category });
+};
+
+export const getRelatedProducts: RequestHandler = async (req, res) => {
+  const paramsResult = getRelatedProductsSchema.safeParse(req.params);
+  const queryResult = getRelatedProductsQuerySchema.safeParse(req.query);
+
+  if (!paramsResult.success || !queryResult.success) {
+    res.status(400).json({ error: 'Parâmetros inválidos' });
+    return;
+  }
+
+  const { id } = paramsResult.data;
+  const { limit: rawLimit } = queryResult.data;
+
+  const products = await getProductsFromSameCategory(
+    parseInt(id),
+    rawLimit ? parseInt(rawLimit) : undefined,
+  );
+
+  const productsWithAbsoluteUrl = products.map((product) => ({
+    ...product,
+    image: product.image ? getAbsoluteImageUrl(product.image) : null,
+    liked: false,
+  }));
+
+  res.json({ error: null, products: productsWithAbsoluteUrl });
 };
