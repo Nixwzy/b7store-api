@@ -1,7 +1,13 @@
 import { RequestHandler } from 'express';
 import { getProductSchema } from '@/schemas/getProductSchema.js';
-import { getAllProducts } from '@/services/product.js';
+import {
+  getAllProducts,
+  getProduct,
+  incrementProductViews,
+} from '@/services/product.js';
 import { getAbsoluteImageUrl } from '@/utils/getAbsoluteImageUrl.js';
+import { getOneProductSchema } from '@/schemas/getOneProductSchema.js';
+import { getCategory } from '@/services/category.js';
 
 export const getProducts: RequestHandler = async (req, res) => {
   const parseResult = getProductSchema.safeParse(req.query);
@@ -30,8 +36,27 @@ export const getProducts: RequestHandler = async (req, res) => {
 };
 
 export const getOneProduct: RequestHandler = async (req, res) => {
+  const paramsResult = getOneProductSchema.safeParse(req.params);
+  if (!paramsResult.success) {
+    res.status(400).json({ error: 'Parâmetros inválidos' });
+    return;
+  }
+  const { id } = paramsResult.data;
 
-  
+  const product = await getProduct(parseInt(id));
+  if (!product) {
+    res.json({ error: 'Produto não encontrado' });
+    return;
+  }
 
-  res.json({ error: null });
+  const productWithAbsoluteImages = {
+    ...product,
+    images: product.images.map((img) => getAbsoluteImageUrl(img)),
+  };
+
+  const category = await getCategory(product.categoryId);
+
+  await incrementProductViews(product.id);
+
+  res.json({ error: null, product: productWithAbsoluteImages, category });
 };
