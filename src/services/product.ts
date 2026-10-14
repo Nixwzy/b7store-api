@@ -1,10 +1,6 @@
 import { prisma } from '@/libs/prisma.js';
+import { ProductFilters } from '@/types/productFilters.js';
 
-type ProductFilters = {
-  metadata?: { [key: string]: string };
-  order?: string;
-  limit?: number;
-};
 export const getAllProducts = async (filters: ProductFilters) => {
   let orderBy = {};
   switch (filters.order) {

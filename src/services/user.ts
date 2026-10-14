@@ -1,4 +1,5 @@
 import { prisma } from '@/libs/prisma.js';
+import { Address } from '@/types/address.js';
 import { compare, hash } from 'bcryptjs';
 import { v4 } from 'uuid';
 
@@ -51,4 +52,13 @@ export const getUserIdByToken = async (token: string) => {
   });
   if (!user) return null;
   return user.id;
+};
+
+export const createAddress = async (userId: number, address: Address) => {
+  return await prisma.userAddress.create({
+    data: {
+      ...address,
+      userId,
+    },
+  });
 };
