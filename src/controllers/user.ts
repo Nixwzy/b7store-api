@@ -1,5 +1,6 @@
+import { loginSchema } from '@/schemas/loginSchema.js';
 import { registerSchema } from '@/schemas/registerSchema.js';
-import { createUser } from '@/services/user.js';
+import { createUser, loginUser } from '@/services/user.js';
 import { RequestHandler } from 'express';
 
 export const register: RequestHandler = async (req, res) => {
@@ -17,4 +18,20 @@ export const register: RequestHandler = async (req, res) => {
   }
 
   res.status(201).json({ error: null, user });
+};
+
+export const login: RequestHandler = async (req, res) => {
+  const result = loginSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: 'Dados inválidos' });
+    return;
+  }
+  const { email, password } = result.data;
+  const token = await loginUser(email, password);
+  if (!token) {
+    res.status(400).json({ error: 'Email ou senha inválidos' });
+    return;
+  }
+
+  res.json({ error: null, token });
 };
